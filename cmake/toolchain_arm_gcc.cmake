@@ -9,7 +9,7 @@ set(CMAKE_OBJDUMP ${CROSS_COMPILE}-objdump CACHE INTERNAL "objdump tool")
 set(CMAKE_C_FLAGS "-mthumb -fno-builtin -ffunction-sections -fdata-sections -Wno-unused-but-set-variable -Wall -Wunused-parameter -Wundef -fno-omit-frame-pointer -fno-stack-protector")
 set(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m3 -x assembler-with-cpp")
 set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -lc -lgcc -lnosys --specs=nosys.specs -mabi=aapcs -Wl,--gc-sections -mthumb -static -Xlinker -Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.map")
-
+set(CMAKE_EXECUTABLE_SUFFIX_C .elf)
 
 if (NOT BOARD)
 	set(BOARD stm32f103)
