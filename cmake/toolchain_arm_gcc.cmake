@@ -1,0 +1,26 @@
+if (NOT CROSS_COMPILE)
+	set(CROSS_COMPILE arm-none-eabi)
+endif()
+set(CMAKE_C_COMPILER ${CROSS_COMPILE}-gcc)
+set(CMAKE_ASM_COMPILER ${CROSS_COMPILE}-gcc)
+set(CMAKE_CXX_COMPILER ${CROSS_COMPILE}-g++)
+set(CMAKE_OBJCOPY ${CROSS_COMPILE}-objcopy CACHE INTERNAL "objcopy tool")
+set(CMAKE_C_FLAGS "-mthumb -fno-builtin -ffunction-sections -fdata-sections -Wno-unused-but-set-variable -Wall -Wunused-parameter -Wundef -fno-omit-frame-pointer -fno-stack-protector")
+set(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m3 -x assembler-with-cpp")
+set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs -mabi=aapcs -Wl,--gc-sections -mthumb -static -Xlinker -Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.map")
+
+
+if (NOT BOARD)
+	set(BOARD stm32f103)
+endif()
+
+if (${BOARD} STREQUAL "stm32f103")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m3")
+	set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -mcpu=cortex-m3")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mcpu=cortex-m3")
+elseif(${BOARD} STREQUAL "stm32h743")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m7")
+	set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -mcpu=cortex-m7")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mcpu=cortex-m7")
+endif()
+
