@@ -48,3 +48,29 @@ target_include_directories(freertos PUBLIC
 	free_rtos_port/${BOARD}
 )
 
+add_library(cio OBJECT
+	common/io.c
+)
+
+target_link_libraries(cio PRIVATE opencm3)
+
+add_executable(main) 
+target_link_libraries(main PUBLIC opencm3 freertos cio)
+
+target_link_libraries(main PUBLIC optimized c)
+target_link_libraries(main PUBLIC optimized gcc)
+target_link_libraries(main PUBLIC optimized nosys)
+
+get_property(LDSCRIPT_PATH TARGET opencm3 PROPERTY LINK_PATH)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  -T ${CMAKE_CURRENT_SOURCE_DIR}/ld/${BOARD}.ld -L ${LDSCRIPT_PATH} -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/main.map")
+
+add_custom_command(TARGET main POST_BUILD
+	COMMAND ${CMAKE_OBJCOPY} -Obinary ${CMAKE_CURRENT_BINARY_DIR}/main.elf ${CMAKE_CURRENT_BINARY_DIR}/main.bin
+	COMMENT "Creating binary output main.bin"
+)
+
+add_custom_command(TARGET main POST_BUILD
+	COMMAND ${CMAKE_OBJDUMP} -SD ${CMAKE_CURRENT_BINARY_DIR}/main.elf > ${CMAKE_CURRENT_BINARY_DIR}/main.lst
+	COMMENT "Creating dump output main.lst"
+)
+

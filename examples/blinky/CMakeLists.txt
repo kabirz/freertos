@@ -1,21 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(blinky)
 
-add_subdirectory(../../ ${CMAKE_CURRENT_BINARY_DIR}/_build_)
+add_subdirectory(../../ ${CMAKE_CURRENT_BINARY_DIR}/main)
 
-add_executable(${CMAKE_PROJECT_NAME} main.c)
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC opencm3 freertos)
- 
-get_property(LDSCRIPT_PATH TARGET opencm3 PROPERTY LINK_PATH)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  -T ${CMAKE_CURRENT_SOURCE_DIR}/link.ld -L ${LDSCRIPT_PATH}")
+target_sources(main PRIVATE main.c)
 
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_OBJCOPY} -Obinary ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.elf ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.bin
-	COMMENT "Creating binary output ${CMAKE_PROJECT_NAME}.bin"
-)
-
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_OBJDUMP} -d -S ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.elf > ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.lst
-	COMMENT "Creating dump output ${CMAKE_PROJECT_NAME}.lst"
-)
 
