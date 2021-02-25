@@ -75,3 +75,13 @@ add_custom_command(TARGET main POST_BUILD
 	COMMENT "Creating dump output main.lst"
 )
 
+add_custom_target(flash
+	COMMAND openocd-zephyr
+	-f interface/cmsis-dap.cfg
+	-f target/stm32f1x.cfg
+	-c init -c halt
+	-c "flash write_image erase ${CMAKE_CURRENT_BINARY_DIR}/main.elf"
+	-c reset -c shutdown
+	DEPENDS main
+)
+
