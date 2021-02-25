@@ -37,15 +37,15 @@ set_target_properties(opencm3 PROPERTIES INTERFACE_COMPILE_DEFINITIONS ${BOARD_D
 set_target_properties(opencm3 PROPERTIES LINK_PATH ${OPENCM3_PATH}/lib)
 
 ############################## FreeRTOS ##############################
-aux_source_directory(free_rtos_src/src FR_SRCS)
+aux_source_directory(freertos/src/src FR_SRCS)
 add_library(freertos OBJECT
 	${FR_SRCS}
-	free_rtos_port/${BOARD}/port.c
-	free_rtos_port/MemMang/heap_3.c
+	freertos/port/${BOARD}/port.c
+	freertos/port/MemMang/heap_3.c
 )
 target_include_directories(freertos PUBLIC
-	free_rtos_src/include
-	free_rtos_port/${BOARD}
+	freertos/src/include
+	freertos/port/${BOARD}
 )
 
 add_library(cio OBJECT
