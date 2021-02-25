@@ -1,3 +1,4 @@
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 #include <stdbool.h>
@@ -6,6 +7,9 @@
 static bool _usart_enabled;
 static void usart_setup(void)
 {
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_AFIO);
+	rcc_periph_clock_enable(RCC_USART1);
 	/* Setup GPIO pin GPIO_USART1_RE_TX on GPIO port B for transmit. */
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
@@ -22,25 +26,8 @@ static void usart_setup(void)
 	_usart_enabled = true;
 }
 
-void _exit(int status)
+void putchar(char c)
 {
-	(void)status;
-	while(1){}
+	if (!_usart_enabled) usart_setup();
+	usart_send_blocking(USART1, c);
 }
-
-int _write(int file, char *ptr, int len)
-{
-	int i = -1;
-
-	if (file == 1) {
-		if (!_usart_enabled) usart_setup();
-
-		for (i = 0; i < len; i++)
-			usart_send_blocking(USART1, ptr[i]);
-		return i;
-	}
-
-	errno = EIO;
-	return i;
-}
-
