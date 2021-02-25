@@ -124,10 +124,13 @@ static int printi(char **out, int i, int b, int sg, int width, int pad, int letb
 
 static int print( char **out, const char *format, va_list args )
 {
+	void vTaskSuspendAll( void );
+	long xTaskResumeAll( void );
 	register int width, pad;
 	register int pc = 0;
 	char scr[2];
 
+	vTaskSuspendAll();
 	for (; *format != 0; ++format) {
 		if (*format == '%') {
 			++format;
@@ -183,6 +186,7 @@ static int print( char **out, const char *format, va_list args )
 	}
 	if (out) **out = '\0';
 	va_end( args );
+	xTaskResumeAll();
 	return pc;
 }
 

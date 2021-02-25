@@ -41,7 +41,7 @@ aux_source_directory(freertos/src/src FR_SRCS)
 add_library(freertos OBJECT
 	${FR_SRCS}
 	freertos/port/${BOARD}/port.c
-	freertos/port/MemMang/heap_3.c
+	freertos/port/MemMang/heap_4.c
 	freertos/port/printf-stdarg.c
 )
 target_include_directories(freertos PUBLIC
