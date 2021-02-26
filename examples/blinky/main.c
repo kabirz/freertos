@@ -45,8 +45,8 @@ int main(void)
 	clock_setup();
 	gpio_setup();
 	
-	xTaskCreate(led_task, "led_task", 1000, NULL, 4, NULL);
-	xTaskCreate(uart_task, "uart_task", 1000, (void *)100, 4, NULL);
+	xTaskCreate(led_task, "led_task", 120, NULL, 4, NULL);
+	xTaskCreate(uart_task, "uart_task", 400, (void *)100, 4, NULL);
 	vTaskStartScheduler();
 
 	return 0;
