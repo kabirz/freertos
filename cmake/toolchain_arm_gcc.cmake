@@ -12,10 +12,10 @@ set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -specs=nosys.specs -mabi=aapcs -Wl,--g
 set(CMAKE_EXECUTABLE_SUFFIX_C .elf)
 
 if (NOT BOARD)
-	set(BOARD stm32f103)
+	set(BOARD bluepill)
 endif()
 
-if (${BOARD} STREQUAL "stm32f103")
+if (${BOARD} STREQUAL "bluepill")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m3")
 	set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -mcpu=cortex-m3")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mcpu=cortex-m3")

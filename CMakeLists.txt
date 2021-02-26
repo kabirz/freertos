@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.13)
 
 set(OPENCM3_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3)
 
-if (${BOARD} STREQUAL "stm32f103")
+if (${BOARD} STREQUAL "bluepill")
 	set(BSP f1)
-	set(BOARD_DEF STM32F1)
+	set(CPU_TYPE stm32f103x8)
 elseif(${BOARD} STREQUAL "stm32h743")
 	set(BSP h7)
-	set(BOARD_DEF STM32H7)
+	set(CPU_TYPE ${BOARD})
 else()
 	message(FATAL_ERROR "Unknown board: ${BOARD}")
 endif()
@@ -26,6 +26,16 @@ ExternalProject_Add(
 		BUILD_BYPRODUCTS ${OPENCM3_PATH}/lib/libopencm3_stm32${BSP}.a
 )
 
+execute_process(
+		COMMAND ${Python3_EXECUTABLE} scripts/genlink.py ld/devices.data ${CPU_TYPE} DEFS
+		WORKING_DIRECTORY                ${OPENCM3_PATH}
+		OUTPUT_VARIABLE                  BOARD_DEF
+)
+
+add_custom_command(TARGET libopencm3 POST_BUILD
+	VERBATIM COMMAND eval "${CMAKE_C_COMPILER} -E ${BOARD_DEF} -P -E ${OPENCM3_PATH}/ld/linker.ld.S -o ${CMAKE_CURRENT_BINARY_DIR}/${BOARD}.ld"
+)
+
 add_library(opencm3 STATIC IMPORTED GLOBAL)
 add_dependencies(
 	opencm3
@@ -33,8 +43,7 @@ add_dependencies(
 )
 set_target_properties(opencm3 PROPERTIES IMPORTED_LOCATION ${OPENCM3_PATH}/lib/libopencm3_stm32${BSP}.a)
 set_target_properties(opencm3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OPENCM3_PATH}/include)
-set_target_properties(opencm3 PROPERTIES INTERFACE_COMPILE_DEFINITIONS ${BOARD_DEF})
-set_target_properties(opencm3 PROPERTIES LINK_PATH ${OPENCM3_PATH}/lib)
+set_target_properties(opencm3 PROPERTIES INTERFACE_COMPILE_OPTIONS ${BOARD_DEF})
 
 ############################## FreeRTOS ##############################
 aux_source_directory(freertos/src/src FR_SRCS)
@@ -63,7 +72,7 @@ target_link_libraries(main PUBLIC optimized gcc)
 target_link_libraries(main PUBLIC optimized nosys)
 
 get_property(LDSCRIPT_PATH TARGET opencm3 PROPERTY LINK_PATH)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  -T ${CMAKE_CURRENT_SOURCE_DIR}/ld/${BOARD}.ld -L ${LDSCRIPT_PATH} -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/main.map")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  -T ${CMAKE_CURRENT_BINARY_DIR}/${BOARD}.ld -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/main.map")
 
 add_custom_command(TARGET main POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} -Obinary ${CMAKE_CURRENT_BINARY_DIR}/main.elf ${CMAKE_CURRENT_BINARY_DIR}/main.bin
@@ -76,7 +85,7 @@ add_custom_command(TARGET main POST_BUILD
 )
 
 add_custom_target(flash-dap
-	COMMAND openocd-zephyr
+	VERBATIM COMMAND openocd-zephyr
 	-f interface/cmsis-dap.cfg
 	-f target/stm32f1x.cfg
 	-c "program ${CMAKE_CURRENT_BINARY_DIR}/main.elf verify reset exit"
@@ -84,7 +93,7 @@ add_custom_target(flash-dap
 )
 
 add_custom_target(flash-stlink
-	COMMAND openocd
+	VERBATIM COMMAND openocd
 	-f interface/stlink-v2.cfg
 	-f target/stm32f1x.cfg
 	-c "program ${CMAKE_CURRENT_BINARY_DIR}/main.elf verify reset exit"
