@@ -12,39 +12,7 @@ else()
 	message(FATAL_ERROR "Unknown board: ${BOARD}")
 endif()
 ############################## libopencm3 ##############################
-cmake_host_system_information(RESULT NCPU QUERY NUMBER_OF_LOGICAL_CORES)
-include(ExternalProject)
-ExternalProject_Add(
-		libopencm3
-		PREFIX ${OPENCM3_PATH}
-		SOURCE_DIR ${OPENCM3_PATH}
-		BINARY_DIR ${OPENCM3_PATH}
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND
-		make TARGETS=stm32/${BSP} -j ${NCPU}
-		INSTALL_COMMAND ""
-		BUILD_BYPRODUCTS ${OPENCM3_PATH}/lib/libopencm3_stm32${BSP}.a
-)
-
-execute_process(
-		COMMAND ${Python3_EXECUTABLE} scripts/genlink.py ld/devices.data ${CPU_TYPE} DEFS
-		WORKING_DIRECTORY                ${OPENCM3_PATH}
-		OUTPUT_VARIABLE                  BOARD_DEF
-)
-
-add_custom_command(TARGET libopencm3 POST_BUILD
-	VERBATIM COMMAND eval "${CMAKE_C_COMPILER} -E ${BOARD_DEF} -P -E ${OPENCM3_PATH}/ld/linker.ld.S -o ${CMAKE_CURRENT_BINARY_DIR}/${BOARD}.ld"
-)
-
-add_library(opencm3 STATIC IMPORTED GLOBAL)
-add_dependencies(
-	opencm3
-	libopencm3
-)
-set_target_properties(opencm3 PROPERTIES IMPORTED_LOCATION ${OPENCM3_PATH}/lib/libopencm3_stm32${BSP}.a)
-set_target_properties(opencm3 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OPENCM3_PATH}/include)
-set_target_properties(opencm3 PROPERTIES INTERFACE_COMPILE_OPTIONS ${BOARD_DEF})
-
+include(cmake/libopencm3.cmake)
 ############################## FreeRTOS ##############################
 aux_source_directory(freertos/src/src FR_SRCS)
 add_library(freertos OBJECT
@@ -85,7 +53,7 @@ add_custom_command(TARGET main POST_BUILD
 )
 
 add_custom_target(flash-dap
-	VERBATIM COMMAND openocd-zephyr
+	VERBATIM COMMAND openocd
 	-f interface/cmsis-dap.cfg
 	-f target/stm32f1x.cfg
 	-c "program ${CMAKE_CURRENT_BINARY_DIR}/main.elf verify reset exit"
