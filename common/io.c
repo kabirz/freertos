@@ -1,11 +1,8 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
-#include <stdbool.h>
-#include <errno.h>
 
-static bool _usart_enabled;
-static void usart_setup(void)
+static void __attribute__((constructor(103))) usart_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_AFIO);
@@ -23,11 +20,9 @@ static void usart_setup(void)
 
 	/* Finally enable the USART. */
 	usart_enable(USART1);
-	_usart_enabled = true;
 }
 
 void putchar(char c)
 {
-	if (!_usart_enabled) usart_setup();
 	usart_send_blocking(USART1, c);
 }
