@@ -71,13 +71,6 @@ add_library(opencm3 OBJECT
     ${OPENCM3_PATH}/lib/usb/usb.c
     ${OPENCM3_PATH}/lib/usb/usb_control.c
     ${OPENCM3_PATH}/lib/usb/usb_standard.c
-    ${OPENCM3_PATH}/lib/usb/usb_msc.c
-    ${OPENCM3_PATH}/lib/usb/usb_hid.c
-    ${OPENCM3_PATH}/lib/usb/usb_audio.c
-    ${OPENCM3_PATH}/lib/usb/usb_cdc.c
-    ${OPENCM3_PATH}/lib/usb/usb_midi.c
-    ${OPENCM3_PATH}/lib/usb/usb_dwc_common.c
-    ${OPENCM3_PATH}/lib/usb/usb_f107.c
     ${OPENCM3_PATH}/lib/stm32/common/st_usbfs_core.c
     ${OPENCM3_PATH}/lib/stm32/st_usbfs_v1.c
     ${OPENCM3_PATH}/lib/cm3/vector.c
