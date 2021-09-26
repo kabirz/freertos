@@ -6,6 +6,9 @@ add_executable(gen_array main.c)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pic.o
     COMMAND objcopy -I binary -O elf64-x86-64 -B i386 pic.jpg ${CMAKE_CURRENT_BINARY_DIR}/pic.o
+    --redefine-sym _binary_pic_jpg_start=image_start
+    --redefine-sym _binary_pic_jpg_end=image_end
+    --redefine-sym _binary_pic_jpg_size=image_size
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS pic.jpg
 )
